@@ -4,7 +4,7 @@ export default defineConfig({
     build: {
         manifest: true, // Enable manifest generation
         rollupOptions: {
-            input: './build/application.html', // Entry point for build only
+            input: './vite-build-entry.html', // Entry point for build only
         },
     },
 });

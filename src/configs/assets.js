@@ -2,7 +2,10 @@ import config from './app.js';
 import fs from 'fs';
 import path from 'path';
 
-const VITE_BUILD_ENTRY_POINT = 'build/application.html';
+/**
+ * This is the entry point of the build which is defined in vite.config.js (build.rollupOptions.input)
+ */
+const VITE_BUILD_ENTRY_POINT = 'vite-build-entry.html';
 
 let assets = { scripts: [], styles: [] };
 
@@ -15,13 +18,35 @@ let assets = { scripts: [], styles: [] };
 if (config.env === 'production') {
     const manifest = JSON.parse(fs.readFileSync(path.resolve('dist/.vite/manifest.json'), 'utf-8'));
 
-    assets.scripts.push('/' + manifest[VITE_BUILD_ENTRY_POINT].file);
+    const addAssets = function (item, isImportedItem = false) {
+        assets.scripts.push({
+            type: isImportedItem ? 'modulepreload' : 'module',
+            path: '/' + item.file,
+        });
 
-    manifest[VITE_BUILD_ENTRY_POINT].css.forEach((file) => {
-        assets.styles.push('/' + file);
+        if (item.css) {
+            item.css.forEach((file) => {
+                assets.styles.push({
+                    path: '/' + file,
+                });
+            });
+        }
+
+        if (item.imports) {
+            item.imports.forEach((importedItem) => {
+                addAssets(manifest[importedItem], true);
+            });
+        }
+    };
+
+    addAssets(manifest[VITE_BUILD_ENTRY_POINT]);
+}
+
+if (config.env === 'development') {
+    assets.scripts.push({
+        type: 'module',
+        path: '/src/resources/scripts/application.js',
     });
-} else {
-    assets.scripts.push('/src/resources/scripts/application.js');
 }
 
 export default assets;

@@ -10,8 +10,8 @@
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
 
-    <% styles.forEach(function(path) { %>
-        <link rel="stylesheet" href="<%= path %>">
+    <% styles.forEach(function(file) { %>
+        <link rel="stylesheet" href="<%= file.path %>">
     <% }); %>
 </head>
 <body class="bg-gray-100 text-gray-900 flex flex-col justify-between min-h-svh">
@@ -24,8 +24,8 @@
 
 <%- include('../partials/footer'); %>
 
-<% scripts.forEach(function(path) { %>
-    <script type="module" src="<%= path %>"></script>
+<% scripts.forEach(function(file) { %>
+    <script type="<%= file.type %>" src="<%= file.path %>"></script>
 <% }); %>
 </body>
 </html>
