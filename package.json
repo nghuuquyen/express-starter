@@ -6,7 +6,7 @@
   "type": "module",
   "scripts": {
     "start": "node src/server.js",
-    "dev": "nodemon src/server.js",
+    "dev": "NODE_ENV=development nodemon src/server.js",
     "build": "vite build",
     "lint": "eslint '**/*.js' --fix",
     "format": "prettier --write '**/*.js'",
