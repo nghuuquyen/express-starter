@@ -2,6 +2,22 @@
 
 ![homepage](homepage.png)
 
+This project setup is a simple Express.js starter template with the following features:
+- EJS templates for rendering HTML pages.
+- Prisma ORM for database access.
+- MySQL database.
+- Environment variables using `dotenv`.
+- Tailwind CSS for styling.
+- ESLint and Prettier for code linting and formatting.
+- Nodemon for auto-reloading the server during development.
+- Winston for logging.
+- Express-validator for request validation.
+- Helmet for securing the app by setting various HTTP headers.
+- Compression for compressing the response data.
+- Morgan for logging HTTP requests.
+- Vite for building the frontend assets. Support HMR (Hot Module Replacement) in development mode.
+- Build the frontend assets with `npm run build`.
+
 ## Prerequisites
 
 Before running this project, ensure you have the following installed:
