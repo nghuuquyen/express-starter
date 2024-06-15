@@ -4,12 +4,15 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><%= siteName %></title>
-    <link rel="stylesheet" href="/dist/style.css">
     <meta name="csrf-token" content="<%= typeof csrfToken !== 'undefined' ? csrfToken : '' %>">
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
+
+    <% styles.forEach(function(path) { %>
+        <link rel="stylesheet" href="<%= path %>">
+    <% }); %>
 </head>
 <body class="bg-gray-100 text-gray-900 flex flex-col justify-between min-h-svh">
 
@@ -21,6 +24,8 @@
 
 <%- include('../partials/footer'); %>
 
-<script src="/script.js"></script>
+<% scripts.forEach(function(path) { %>
+    <script type="module" src="<%= path %>"></script>
+<% }); %>
 </body>
 </html>
