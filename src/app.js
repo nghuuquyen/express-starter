@@ -16,8 +16,8 @@ import rateLimit from 'express-rate-limit';
 const csrfProtection = csrf({ cookie: true });
 
 const limiter = rateLimit({
-    windowMs: 5 * 60 * 1000, // 5 minutes
-    max: 100, // limit each IP to 100 requests per windowMs
+    windowMs: 60 * 1000, // 1 minute
+    max: 1000, // limit each IP to 100 requests per windowMs
     message: 'Too many requests from this IP, please try again later.',
 });
 
@@ -62,7 +62,15 @@ app.use((req, res, next) => {
 app.use('/', routes);
 
 // Handle 404
-app.use((req, res) => {
+app.use((req, res, next) => {
+    if (config.env === 'development') {
+        const viteDevServeAssetPaths = [/^\/src\/resources\//, /^\/@vite\/client/, /^\/node_modules\//];
+
+        // In development mode, some asset paths must allow to next ViteExpress middleware.
+        if (viteDevServeAssetPaths.some((pathRegex) => pathRegex.test(req.path))) {
+            return next();
+        }
+    }
     res.status(404).render('404', { title: 'Page Not Found' });
 });
 
