@@ -12,6 +12,7 @@ import compression from 'compression';
 import cookieParser from 'cookie-parser';
 import csrf from 'csurf';
 import rateLimit from 'express-rate-limit';
+import assets from './configs/assets.js';
 
 const csrfProtection = csrf({ cookie: true });
 
@@ -35,7 +36,8 @@ const isAjax = (req, res, next) => {
 const app = express();
 
 app.locals.siteName = config.siteName; // Set site name
-
+app.locals.styles = assets.styles; // Set styles
+app.locals.scripts = assets.scripts; // Set scripts
 app.set('view engine', 'ejs'); // Set view engine
 app.set('views', path.join('src/views')); // Set views directory
 app.use(expressLayouts); // Use express-ejs-layouts
@@ -48,7 +50,7 @@ app.use(express.json()); // Parse application/json
 app.use(express.urlencoded({ extended: true })); // Parse application/x-www-form-urlencoded
 app.use(isAjax); // Middleware set function to check if request is AJAX
 app.use(compression()); // Compress responses
-app.use(express.static('public')); // Serve static files from src/public
+app.use(express.static(config.env === 'production' ? 'dist' : 'public')); // Serve static files
 app.use(morgan('combined')); // Log HTTP requests
 app.use(csrfProtection); // CSRF protection
 
