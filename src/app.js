@@ -1,97 +1,47 @@
 import 'express-async-errors';
-import config from './configs/app.js';
 import express from 'express';
-import path from 'path';
+import config from './configs/app.js';
 import routes from './routes.js';
-import logger from './configs/logger.js';
-import morgan from 'morgan';
-import expressLayouts from 'express-ejs-layouts';
-import helmet from 'helmet';
-import cors from 'cors';
-import compression from 'compression';
 import cookieParser from 'cookie-parser';
-import csrf from 'csurf';
-import rateLimit from 'express-rate-limit';
-import assets from './configs/assets.js';
-
-const csrfProtection = csrf({ cookie: true });
-
-const limiter = rateLimit({
-    windowMs: 60 * 1000, // 1 minute
-    max: 1000, // limit each IP to 100 requests per windowMs
-    message: 'Too many requests from this IP, please try again later.',
-});
-
-const isAjax = (req, res, next) => {
-    req.isAjax = () => {
-        return (
-            req.xhr ||
-            req.headers['x-requested-with'] === 'XMLHttpRequest' ||
-            req.headers['accept'].includes('application/json')
-        );
-    };
-    next();
-};
+import security from './configs/security.js';
+import errorHandler from './middlewares/error-handler.js';
+import setupViewTemplateEngine from './configs/views.js';
+import setupApplicationAssets from './configs/assets.js';
+import requestUtils from './middlewares/request-utils.js';
+import setupHttpRequestLogs from './configs/request-logs.js';
 
 const app = express();
 
+/** Setup Local Variables */
 app.locals.siteName = config.siteName; // Set site name
-app.locals.styles = assets.styles; // Set styles
-app.locals.scripts = assets.scripts; // Set scripts
-app.set('view engine', 'ejs'); // Set view engine
-app.set('views', path.join('src/views')); // Set views directory
-app.use(expressLayouts); // Use express-ejs-layouts
-app.set('layout', 'layouts/default'); // Set default layout
-app.use(limiter); // Apply rate limiter
-app.use(helmet()); // Secure Express apps by setting various HTTP headers
-app.use(cors()); // Enable CORS with various options
+
+/** Setup Requests Logs */
+setupHttpRequestLogs(app);
+
+/** Setup View Engine */
+setupApplicationAssets(app);
+setupViewTemplateEngine(app);
+
+/** Setup Data Parsing */
 app.use(cookieParser()); // Parse Cookie header and populate req.cookies
 app.use(express.json()); // Parse application/json
 app.use(express.urlencoded({ extended: true })); // Parse application/x-www-form-urlencoded
-app.use(isAjax); // Middleware set function to check if request is AJAX
-app.use(compression()); // Compress responses
-app.use(express.static(config.env === 'production' ? 'dist' : 'public')); // Serve static files
-app.use(morgan('combined')); // Log HTTP requests
-app.use(csrfProtection); // CSRF protection
 
-// Middleware to set CSRF token
-app.use((req, res, next) => {
-    res.locals.csrfToken = req.csrfToken();
-    next();
-});
+/** Setup Security Middlewares */
+app.use(security.RateLimiter);
+app.use(security.SecureHTTPHeaders);
+app.use(security.CORSProtection);
+app.use(security.CSRFProtection);
 
-// Register all application routes
+/** Setup Utility Middlewares */
+app.use(requestUtils.isAjax);
+app.use(requestUtils.setCSRFToken);
+
+/** Setup Application routes */
 app.use('/', routes);
 
-// Handle 404
-app.use((req, res, next) => {
-    if (config.env === 'development') {
-        const viteDevServeAssetPaths = [/^\/src\/resources\//, /^\/@vite\/client/, /^\/node_modules\//];
-
-        // In development mode, some asset paths must allow to next ViteExpress middleware.
-        if (viteDevServeAssetPaths.some((pathRegex) => pathRegex.test(req.path))) {
-            return next();
-        }
-    }
-    res.status(404).render('404', { title: 'Page Not Found' });
-});
-
-// Error handler
-app.use((err, req, res, next) => {
-    logger.error(err.message, { stack: err.stack });
-
-    if (res.headersSent) {
-        return next(err);
-    }
-
-    if (req.isAjax()) {
-        return res.status(500).json({
-            error: 'Something failed!',
-            message: err.message,
-        });
-    } else {
-        return res.status(500).render('500', { error: err });
-    }
-});
+/** Setup Error Handling */
+app.use(errorHandler.FileNotFoundErrorHandler);
+app.use(errorHandler.ApplicationErrorHandler);
 
 export default app;

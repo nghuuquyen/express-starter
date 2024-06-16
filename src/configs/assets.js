@@ -1,6 +1,8 @@
-import config from './app.js';
 import fs from 'fs';
 import path from 'path';
+import express from 'express';
+import config from './app.js';
+import compression from 'compression';
 
 /**
  * This is the entry point of the build which is defined in vite.config.js (build.rollupOptions.input)
@@ -49,4 +51,37 @@ if (config.env === 'development') {
     });
 }
 
-export default assets;
+/**
+ * Setup application assets
+ *
+ * The SetupApplicationAssets function is an Express.js app configures the application to use
+ * specific CSS and JavaScript files by storing them in app.locals for easy access in views,
+ * and it sets up the application to serve static files like images and scripts from a designated directory,
+ * depending on whether the app is in production or development mode.
+ */
+const SetupApplicationAssets = (app) => {
+    /**
+     * Set serve static files location
+     *
+     * @see https://expressjs.com/en/starter/static-files.html
+     */
+    app.use(express.static(config.env === 'production' ? 'dist' : 'public'));
+
+    /**
+     * Set application CSS and JS assets to be used in views
+     */
+    app.locals.styles = assets.styles;
+    app.locals.scripts = assets.scripts;
+
+    /**
+     * Compress responses
+     *
+     * The compression library in Express.js is used to reduce the size of the response body that is sent to clients.
+     * This is achieved by compressing the data, typically using algorithms like Gzip or Brotli.
+     *
+     * @see https://expressjs.com/en/resources/middleware/compression.html
+     */
+    app.use(compression());
+};
+
+export default SetupApplicationAssets;
