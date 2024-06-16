@@ -18,8 +18,10 @@ app.locals.siteName = config.siteName; // Set site name
 /** Setup Requests Logs */
 setupHttpRequestLogs(app);
 
-/** Setup View Engine */
+/** Setup Static Assets (ex. CSS, Javascript, Images files, etc...) */
 setupApplicationAssets(app);
+
+/** Setup View Engine */
 setupViewTemplateEngine(app);
 
 /** Setup Data Parsing */

@@ -42,9 +42,13 @@ if (config.env === 'production') {
     };
 
     addAssets(manifest[VITE_BUILD_ENTRY_POINT]);
-}
-
-if (config.env === 'development') {
+} else {
+    /**
+     * Single entry point for the application JavaScript cline-side code.
+     *
+     * If you're needed to import multiple files, you SHOULD use the `import` statement in this JavaScript file.
+     * Or place the script tag in the EJS file of the view directly to specify individual file for each view separately.
+     */
     assets.scripts.push({
         type: 'module',
         path: '/src/resources/scripts/application.js',

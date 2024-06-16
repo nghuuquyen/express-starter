@@ -27,5 +27,8 @@
 <% scripts.forEach(function(file) { %>
     <script type="<%= file.type %>" src="<%= file.path %>"></script>
 <% }); %>
+
+<!-- Additional scripts customized for specific screens -->
+<%- script %>
 </body>
 </html>

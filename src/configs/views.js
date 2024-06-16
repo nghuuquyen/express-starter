@@ -26,7 +26,8 @@ const setupViewTemplateEngine = (app) => {
      * @see https://www.npmjs.com/package/express-ejs-layouts
      */
     app.use(expressLayouts);
-    app.set('layout', 'layouts/default');
+    app.set('layout', 'layouts/default');   // Set default layout
+    app.set('layout extractScripts', true); // Set script blocks extraction to place all the script blocks at the end
 };
 
 export default setupViewTemplateEngine;
